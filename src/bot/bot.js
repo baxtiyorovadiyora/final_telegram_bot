@@ -38,7 +38,9 @@ bot.on("callback_query", async (query) => {
 
 
     if (data == "course_english") {
-        bot.sendMessage(chatId, `engilsh kursi tanlandi...`, {
+        bot.sendMessage(chatId, `engilsh kursi tanlandi...
+             Ingliz tili — dunyoda eng ko‘p ishlatiladigan xalqaro til 🌍🇬🇧
+Uni bilish o‘qish, ish va internet imkoniyatlarini kengaytiradi 📚💻✨`, {
             reply_markup: {
                 inline_keyboard: [
                     [{ text: `Ro'yhatdan o'tish`, callback_data: "register:engilsh" }]
@@ -51,10 +53,59 @@ bot.on("callback_query", async (query) => {
     }
 
     if (data == "course_russian") {
-        bot.sendMessage(chatId, `Rus tili kursi tanlandi...`, {
+        bot.sendMessage(chatId, `Rus tili kursi tanlandi...
+            Rus tili — ko‘plab davlatlarda ishlatiladigan muhim til 🇷🇺🌍
+Uni bilish o‘qish, ish va muloqotda katta foyda beradi 📚🗣️✨ `, {
             reply_markup: {
                 inline_keyboard: [
                     [{ text: `Ro'yhatdan o'tish`, callback_data: "register:russian" }]
+                ]
+            }
+        })
+
+        bot.deleteMessage(chatId, message_id)
+        return
+    }
+
+    if (data == "course_math") {
+        bot.sendMessage(chatId, `Matimatika kursi tanlandi...
+            Matematika — mantiq va hisob-kitob fani ➕➗📐
+U fikrlashni rivojlantirib, hayotda va o‘qishda juda kerak bo‘ladi 📚🧠✨ `, {
+            reply_markup: {
+                inline_keyboard: [
+                    [{ text: `Ro'yhatdan o'tish`, callback_data: "register:Matematika" }]
+                ]
+            }
+        })
+
+        bot.deleteMessage(chatId, message_id)
+        return
+    }
+
+        if (data == "course_programming") {
+        bot.sendMessage(chatId, `Dasturlash kursi tanlandi...
+                Dasturlash — kompyuterga buyruq berish san’ati 💻⌨️
+U orqali saytlar, ilovalar va o‘yinlar yaratiladi 🚀📱🎮 `, {
+            reply_markup: {
+                inline_keyboard: [
+                    [{ text: `Ro'yhatdan o'tish`, callback_data: "register:Dastursh" }]
+                ]
+            }
+        })
+
+        bot.deleteMessage(chatId, message_id)
+        return
+    }
+
+
+
+             if (data == "course_design") {
+        bot.sendMessage(chatId, `Dizayn kursi tanlandi...
+                       Dizayn — chiroyli va qulay ko‘rinish yaratish san’ati 🎨✨
+U saytlar, ilovalar va reklamalarda muhim rol o‘ynaydi 💻📱🌟   `, {
+            reply_markup: {
+                inline_keyboard: [
+                    [{ text: `Ro'yhatdan o'tish`, callback_data: "register:Diayn" }]
                 ]
             }
         })
