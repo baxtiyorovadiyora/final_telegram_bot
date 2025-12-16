@@ -5,116 +5,163 @@ import onCourses from "./handrers/onCourses.js";
 
 config();
 
-export const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true })
+export const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
 
+
+const users = {};
 
 bot.on("message", async (msg) => {
-    console.log(11111);
-
     const chatId = msg.chat.id;
-    const firstname = msg.chat.first_name;
     const text = msg.text;
 
-    if (text == "/start") {
-        return onStart(msg)
-    }
 
-    if (text == "📚 Kurslar") {
-        console.log(1);
-        return onCourses(msg)
-    }
+    if (users[chatId]?.step === "name") {
+        users[chatId].name = text;
+        users[chatId].step = "phone";
 
-    return bot.sendMessage(chatId, `Botda kutilmagan xatolik, iltimos /start bosing... ❗`);
-})
-
-bot.on("callback_query", async (query) => {
-    console.log(query);
-    const query_id = query.id
-    const msg = query.message
-    const chatId = msg.chat.id
-    const message_id = msg.message_id
-
-    const data = query.data
-
-
-    if (data == "course_english") {
-        bot.sendMessage(chatId, `engilsh kursi tanlandi...
-             Ingliz tili — dunyoda eng ko‘p ishlatiladigan xalqaro til 🌍🇬🇧
-Uni bilish o‘qish, ish va internet imkoniyatlarini kengaytiradi 📚💻✨`, {
+        return bot.sendMessage(chatId, "📞 Telefon raqamingizni yuboring:", {
             reply_markup: {
-                inline_keyboard: [
-                    [{ text: `Ro'yhatdan o'tish`, callback_data: "register:engilsh" }]
-                ]
+                keyboard: [
+                    [{ text: "📱 Telefon raqamni yuborish", request_contact: true }]
+                ],
+                resize_keyboard: true,
+                one_time_keyboard: true
             }
-        })
-        bot.deleteMessage(chatId, message_id)
-        return
-
+        });
     }
 
-    if (data == "course_russian") {
-        bot.sendMessage(chatId, `Rus tili kursi tanlandi...
-            Rus tili — ko‘plab davlatlarda ishlatiladigan muhim til 🇷🇺🌍
-Uni bilish o‘qish, ish va muloqotda katta foyda beradi 📚🗣️✨ `, {
-            reply_markup: {
-                inline_keyboard: [
-                    [{ text: `Ro'yhatdan o'tish`, callback_data: "register:russian" }]
-                ]
-            }
-        })
-
-        bot.deleteMessage(chatId, message_id)
-        return
+    if (text === "/start") {
+        return onStart(msg);
     }
 
-    if (data == "course_math") {
-        bot.sendMessage(chatId, `Matimatika kursi tanlandi...
-            Matematika — mantiq va hisob-kitob fani ➕➗📐
-U fikrlashni rivojlantirib, hayotda va o‘qishda juda kerak bo‘ladi 📚🧠✨ `, {
-            reply_markup: {
-                inline_keyboard: [
-                    [{ text: `Ro'yhatdan o'tish`, callback_data: "register:Matematika" }]
-                ]
-            }
-        })
-
-        bot.deleteMessage(chatId, message_id)
-        return
+    if (text === "📚 Kurslar") {
+        return onCourses(msg);
     }
 
-        if (data == "course_programming") {
-        bot.sendMessage(chatId, `Dasturlash kursi tanlandi...
-                Dasturlash — kompyuterga buyruq berish san’ati 💻⌨️
-U orqali saytlar, ilovalar va o‘yinlar yaratiladi 🚀📱🎮 `, {
-            reply_markup: {
-                inline_keyboard: [
-                    [{ text: `Ro'yhatdan o'tish`, callback_data: "register:Dastursh" }]
-                ]
-            }
-        })
-
-        bot.deleteMessage(chatId, message_id)
-        return
-    }
-
-
-
-             if (data == "course_design") {
-        bot.sendMessage(chatId, `Dizayn kursi tanlandi...
-                       Dizayn — chiroyli va qulay ko‘rinish yaratish san’ati 🎨✨
-U saytlar, ilovalar va reklamalarda muhim rol o‘ynaydi 💻📱🌟   `, {
-            reply_markup: {
-                inline_keyboard: [
-                    [{ text: `Ro'yhatdan o'tish`, callback_data: "register:Diayn" }]
-                ]
-            }
-        })
-
-        bot.deleteMessage(chatId, message_id)
-        return
-    }
-
-
+    return bot.sendMessage(
+        chatId,
+        "Iltimos menyudan foydalaning 👇"
+    );
 });
 
-console.log(`Bot ishga tushdi....`);
+bot.on("contact", async (msg) => {
+    const chatId = msg.chat.id;
+    if (!users[chatId]) return;
+
+    users[chatId].phone = msg.contact.phone_number;
+    const user = users[chatId];
+
+    await bot.sendMessage(chatId,
+        `✅ Ro'yxatdan o'tish yakunlandi!
+
+👤 Ism: ${user.name}
+📞 Telefon: ${user.phone}
+📚 Kurs: ${user.course}
+
+Tez orada bog‘lanamiz 😊`,
+        { reply_markup: { remove_keyboard: true } }
+    );
+
+    delete users[chatId];
+});
+
+bot.on("callback_query", async (query) => {
+    const chatId = query.message.chat.id;
+    const message_id = query.message.message_id;
+    const data = query.data;
+
+
+    if (data === "course_english") {
+        await bot.sendMessage(chatId,
+            `🇬🇧 Ingliz tili
+Ingliz tili — xalqaro til 🌍
+O‘qish, ish va internet uchun juda muhim 📚💻`,
+            {
+                reply_markup: {
+                    inline_keyboard: [
+                        [{ text: "📝 Ro'yxatdan o'tish", callback_data: "register:Ingliz tili" }]
+                    ]
+                }
+            }
+        );
+        return bot.deleteMessage(chatId, message_id);
+    }
+
+    if (data === "course_russian") {
+        await bot.sendMessage(chatId,
+            `🇷🇺 Rus tili
+Muloqot va ish uchun muhim til 🗣️🌍`,
+            {
+                reply_markup: {
+                    inline_keyboard: [
+                        [{ text: "📝 Ro'yxatdan o'tish", callback_data: "register:Rus tili" }]
+                    ]
+                }
+            }
+        );
+        return bot.deleteMessage(chatId, message_id);
+    }
+
+    if (data === "course_math") {
+        await bot.sendMessage(chatId,
+            `➕ Matematika
+Mantiq va hisob-kitob fani 🧠📐`,
+            {
+                reply_markup: {
+                    inline_keyboard: [
+                        [{ text: "📝 Ro'yxatdan o'tish", callback_data: "register:Matematika" }]
+                    ]
+                }
+            }
+        );
+        return bot.deleteMessage(chatId, message_id);
+    }
+
+    if (data === "course_programming") {
+        await bot.sendMessage(chatId,
+            `💻 Dasturlash
+Sayt, ilova va o‘yinlar yaratish 🚀`,
+            {
+                reply_markup: {
+                    inline_keyboard: [
+                        [{ text: "📝 Ro'yxatdan o'tish", callback_data: "register:Dasturlash" }]
+                    ]
+                }
+            }
+        );
+        return bot.deleteMessage(chatId, message_id);
+    }
+
+
+    if (data === "course_design") {
+        await bot.sendMessage(chatId,
+            `🎨 Dizayn
+Chiroyli va qulay dizayn yaratish ✨`,
+            {
+                reply_markup: {
+                    inline_keyboard: [
+                        [{ text: "📝 Ro'yxatdan o'tish", callback_data: "register:Dizayn" }]
+                    ]
+                }
+            }
+        );
+        return bot.deleteMessage(chatId, message_id);
+    }
+
+
+    if (data.startsWith("register:")) {
+        const course = data.split(":")[1];
+
+        users[chatId] = {
+            course,
+            step: "name"
+        };
+
+        await bot.sendMessage(chatId, "✍️ Ismingizni kiriting:");
+        return bot.deleteMessage(chatId, message_id);
+    }
+});
+
+console.log("🤖 Bot ishga tushdi...");
+
+
